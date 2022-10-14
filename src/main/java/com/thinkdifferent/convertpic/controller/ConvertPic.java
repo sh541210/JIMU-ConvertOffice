@@ -1,9 +1,9 @@
 package com.thinkdifferent.convertpic.controller;
 
 import com.thinkdifferent.convertpic.config.ConvertPicConfig;
-import com.thinkdifferent.convertpic.config.RabbitMQConfig;
 import com.thinkdifferent.convertpic.service.ConvertPicService;
-import com.thinkdifferent.convertpic.service.RabbitMQService;
+import com.thinkdifferent.convertpic.service.RabbitPicMQService;
+import com.thinkdifferent.mq.config.RabbitMQConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONArray;
@@ -21,6 +21,12 @@ import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Map;
 
+/**
+ * 将常见的图片文件转换为Jpg或Pdf文件Controller
+ *
+ * @author json
+ * @date 2022-10-14
+ */
 @Api(tags = "根据传入的JSON参数生成Jpg/Pdf文件")
 @RestController
 @RequestMapping(value = "/pic/api")
@@ -30,7 +36,7 @@ public class ConvertPic {
     private ConvertPicService convertPicService;
 
     @Autowired
-    private RabbitMQService rabbitMQService;
+    private RabbitPicMQService rabbitMQService;
 
     /**
      * 接收传入的JSON数据，将源图片文件转换为Jpg、Pdf文件；按照传入的设置，将文件回写到指定位置

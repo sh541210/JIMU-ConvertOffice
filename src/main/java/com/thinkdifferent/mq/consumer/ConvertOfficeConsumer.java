@@ -1,8 +1,8 @@
-package com.thinkdifferent.convertoffice.consumer;
+package com.thinkdifferent.mq.consumer;
 
-import com.thinkdifferent.convertoffice.config.RabbitMQConfig;
 import com.thinkdifferent.convertoffice.service.ConvertOfficeService;
-import com.thinkdifferent.convertoffice.task.Task;
+import com.thinkdifferent.convertoffice.task.OfficeTask;
+import com.thinkdifferent.mq.config.RabbitMQConfig;
 import net.sf.json.JSONObject;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class ConvertOfficeConsumer {
 
     @Autowired
-    private Task task;
+    private OfficeTask task;
     @Autowired
     private ConvertOfficeService convertOfficeService;
 

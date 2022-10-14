@@ -1,8 +1,8 @@
-package com.thinkdifferent.convertpic.consumer;
+package com.thinkdifferent.mq.consumer;
 
-import com.thinkdifferent.convertpic.config.RabbitMQConfig;
 import com.thinkdifferent.convertpic.service.ConvertPicService;
-import com.thinkdifferent.convertpic.task.Task;
+import com.thinkdifferent.convertpic.task.PicTask;
+import com.thinkdifferent.mq.config.RabbitMQConfig;
 import net.sf.json.JSONObject;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class ConvertPicConsumer {
 
     @Autowired
-    private Task task;
+    private PicTask task;
     @Autowired
     private ConvertPicService convertPicService;
 
@@ -27,7 +27,7 @@ public class ConvertPicConsumer {
             if(RabbitMQConfig.consumer){
                 JSONObject jsonData = JSONObject.fromObject(strData);
                 task.doTask(convertPicService, jsonData);
-                //	      Thread.currentThread().join();
+//                	      Thread.currentThread().join();
             }
         } catch (Exception e) {
             e.printStackTrace();

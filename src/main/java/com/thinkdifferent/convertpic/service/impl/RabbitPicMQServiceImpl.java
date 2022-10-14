@@ -1,7 +1,7 @@
 package com.thinkdifferent.convertpic.service.impl;
 
-import com.thinkdifferent.convertpic.service.RabbitMQService;
-import com.thinkdifferent.convertpic.config.RabbitMQConfig;
+import com.thinkdifferent.convertpic.service.RabbitPicMQService;
+import com.thinkdifferent.mq.config.RabbitMQConfig;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 
 @Service
-public class RabbitMQServiceImpl implements RabbitMQService, RabbitTemplate.ConfirmCallback{
+public class RabbitPicMQServiceImpl implements RabbitPicMQService, RabbitTemplate.ConfirmCallback{
 
-    private static final Logger log = LoggerFactory.getLogger(RabbitMQServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(RabbitPicMQServiceImpl.class);
 
     //由于rabbitTemplate的scope属性设置为ConfigurableBeanFactory.SCOPE_PROTOTYPE，所以不能自动注入
     @Autowired
@@ -24,7 +24,7 @@ public class RabbitMQServiceImpl implements RabbitMQService, RabbitTemplate.Conf
      * 构造方法注入rabbitTemplate
      */
     @Autowired
-    public RabbitMQServiceImpl(RabbitTemplate rabbitTemplate) {
+    public RabbitPicMQServiceImpl(RabbitTemplate rabbitTemplate) {
         this.rabbitTemplate = rabbitTemplate;
         rabbitTemplate.setConfirmCallback(this); //rabbitTemplate如果为单例的话，那回调就是最后设置的内容
     }

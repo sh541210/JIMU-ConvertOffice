@@ -1,7 +1,8 @@
-package com.thinkdifferent.convertpic.config;
+package com.thinkdifferent.mq.config;
 
 //import org.apache.commons.logging.Log;
 //import org.apache.commons.logging.LogFactory;
+
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.DirectExchange;
@@ -39,16 +40,16 @@ public class RabbitMQConfig
     }
 
 
-    @Value("${spring.rabbitmq.host}")
+    @Value(value = "${spring.rabbitmq.host}")
     private String host;
 
-    @Value("${spring.rabbitmq.port}")
+    @Value(value = "${spring.rabbitmq.port}")
     private int port;
 
-    @Value("${spring.rabbitmq.username}")
+    @Value(value = "${spring.rabbitmq.username}")
     private String username;
 
-    @Value("${spring.rabbitmq.password}")
+    @Value(value = "${spring.rabbitmq.password}")
     private String password;
 
     /**
@@ -83,7 +84,7 @@ public class RabbitMQConfig
         connectionFactory.setUsername(username);
         connectionFactory.setPassword(password);
         connectionFactory.setVirtualHost("/");
-        connectionFactory.setPublisherConfirms(true);
+        connectionFactory.setPublisherConfirmType(CachingConnectionFactory.ConfirmType.CORRELATED);
         return connectionFactory;
     }
 
@@ -137,6 +138,7 @@ public class RabbitMQConfig
     @Bean
     public Binding binding_queue_reecive()
     {
+
         return BindingBuilder.bind(queue_recieve()).to(defaultExchange_receive()).with(ROUTING_RECEIVE);
     }
 

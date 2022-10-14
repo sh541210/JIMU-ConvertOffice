@@ -1,9 +1,9 @@
 package com.thinkdifferent.convertoffice.controller;
 
 import com.thinkdifferent.convertoffice.config.ConvertOfficeConfig;
-import com.thinkdifferent.convertoffice.config.RabbitMQConfig;
+import com.thinkdifferent.mq.config.RabbitMQConfig;
 import com.thinkdifferent.convertoffice.service.ConvertOfficeService;
-import com.thinkdifferent.convertoffice.service.RabbitMQService;
+import com.thinkdifferent.convertoffice.service.RabbitOfficeMQService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONObject;
@@ -35,7 +35,7 @@ public class ConvertOffice {
     private ConvertOfficeService convertOfficeService;
 
     @Autowired
-    private RabbitMQService rabbitMQService;
+    private RabbitOfficeMQService rabbitMQService;
 
     /**
      * 接收传入的JSON数据，将源Office文件转换为Pdf文件；按照传入的设置，将文件回写到指定位置
