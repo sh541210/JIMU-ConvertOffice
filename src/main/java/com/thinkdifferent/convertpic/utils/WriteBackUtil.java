@@ -1,8 +1,9 @@
-package com.thinkdifferent.convertoffice.utils;
+package com.thinkdifferent.convertpic.utils;
 
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -10,19 +11,16 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.Map;
 
-/**
- * 文件回写工具类
- */
+@Component
 public class WriteBackUtil {
 
     private static Logger logger = LoggerFactory.getLogger(WriteBackUtil.class);
 
     /**
      * 调用API接口，将文件上传
-     *
      * @param strFilePathName 文件路径和文件名
-     * @param strUrl          API接口的URL
-     * @param mapHeader       Header参数
+     * @param strUrl API接口的URL
+     * @param mapHeader Header参数
      * @return 接口返回的JSON
      * @throws Exception
      */
@@ -131,6 +129,5 @@ public class WriteBackUtil {
 
         return jsonReturn;
     }
-
 
 }

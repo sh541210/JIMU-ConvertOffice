@@ -32,6 +32,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 添加水印工具类
+ */
 public class WaterMarkUtil {
 
     /**
@@ -497,12 +500,12 @@ public class WaterMarkUtil {
                         .setGlobalAlpha(dblAlpha);
 
                 //对ofd页面填充4行10列的水印，并顺时针旋转45°
-                for (int i = 0; i < dblBorderLength/h ; i++) {// 每行打印次数
-                    for (int j = 0; j < dblBorderLength/20; j++) { // 打印的行数
+                for (int i = 0; i < dblBorderLength / h; i++) {// 每行打印次数
+                    for (int j = 0; j < dblBorderLength / 20; j++) { // 打印的行数
                         ctx.save();
                         ctx.rotate(-intDegree);
                         ctx.translate(40 * i, j * 20); // 控制x、y轴间距
-                        ctx.fillText(strWaterMarkText,  i * h - dblBorderLength , j * h -dblBorderLength);
+                        ctx.fillText(strWaterMarkText, i * h - dblBorderLength, j * h - dblBorderLength);
                         ctx.restore();
                     }
                 }

@@ -7,7 +7,9 @@ import cn.hutool.extra.ftp.FtpMode;
 import cn.hutool.http.HttpUtil;
 import com.thinkdifferent.convertoffice.config.ConvertOfficeConfig;
 import com.thinkdifferent.convertoffice.service.ConvertOfficeService;
-import com.thinkdifferent.convertoffice.utils.*;
+import com.thinkdifferent.convertoffice.utils.ConvertOfficeUtil;
+import com.thinkdifferent.convertoffice.utils.WaterMarkUtil;
+import com.thinkdifferent.convertoffice.utils.WriteBackUtil;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,10 +23,41 @@ import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 文件转PDF实现类
+ *
+ * @author json
+ * @date 2022-10-13
+ */
 @Service
 public class ConvertOfficeServiceImpl implements ConvertOfficeService {
 
     private static Logger log = LoggerFactory.getLogger(ConvertOfficeServiceImpl.class);
+
+    /**
+     * 回调业务系统提供的接口
+     *
+     * @param strWriteBackURL     回调接口URL
+     * @param mapWriteBackHeaders 请求头参数
+     * @param mapParams           参数
+     * @return JSON格式的返回结果
+     */
+    private static JSONObject callBack(String strWriteBackURL, Map<String, String> mapWriteBackHeaders, Map<String, Object> mapParams) {
+        //发送get请求并接收响应数据
+        String strResponse = HttpUtil.createGet(strWriteBackURL).
+                addHeaders(mapWriteBackHeaders).form(mapParams)
+                .execute().body();
+
+        JSONObject jsonReturn = new JSONObject();
+        if (strResponse != null) {
+            jsonReturn.put("flag", "success");
+            jsonReturn.put("message", "Convert Office File Callback Success.\n" +
+                    "Message is :\n" +
+                    strResponse);
+        }
+
+        return jsonReturn;
+    }
 
     /**
      * 将传入的JSON对象中记录的文件，转换为PDF/OFD，输出到指定的目录中；回调应用系统接口，将数据写回。
@@ -83,7 +116,6 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
             // 输入文件（"D:/1.docx"）
             String strInputPath = String.valueOf(parameters.get("inputFile"));
             String strInputFileExt = strInputPath.substring(strInputPath.lastIndexOf(".") + 1);
-
             String strInputPathParam = strInputPath;
             // 默认输入文件存储的临时路径（非path类型时使用）
             String strInPutTempPath = ConvertOfficeConfig.inPutTempPath;
@@ -91,9 +123,7 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
             if (!strInPutTempPath.endsWith("/")) {
                 strInPutTempPath = strInPutTempPath + "/";
             }
-
             File fileInput = null;
-
             // 如果输入类型是url，则通过http协议读取文件，写入到默认输出路径中
             if ("url".equalsIgnoreCase(strInputType)) {
                 String strInputFileName = strInputPath.substring(strInputPath.lastIndexOf("/") + 1);
@@ -102,52 +132,40 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                 if (fileInput.exists()) {
                     fileInput.delete();
                 }
-
                 // 从指定的URL中将文件读取下载到目标路径
                 HttpUtil.downloadFile(strInputPath, strInPutTempPath + strInputFileName);
-
                 strInputPath = strInPutTempPath + strInputFileName;
             } else {
                 fileInput = new File(strInputPath);
             }
-
-
-            // 转换出来的文件名（不包含扩展名）（"1-online"）
+            // 转换出来的文件名（不包含扩展名）
             String strOutPutFileName = String.valueOf(parameters.get("outPutFileName"));
             String strOutputType = String.valueOf(parameters.get("outPutFileType"));
-
             // 文件回写方式（回写路径[path]/回写接口[api]/ftp回写[ftp]）
             String strWriteBackType = "path";
-
             // 默认输出路径
             String strOutPutPath = ConvertOfficeConfig.outPutPath;
             strOutPutPath = strOutPutPath.replaceAll("\\\\", "/");
             if (!strOutPutPath.endsWith("/")) {
                 strOutPutPath = strOutPutPath + "/";
             }
-
             JSONObject jsonWriteBack = new JSONObject();
             if (parameters.get("writeBackType") != null) {
                 strWriteBackType = String.valueOf(parameters.get("writeBackType"));
-
                 // 回写接口或回写路径
                 jsonWriteBack = JSONObject.fromObject(parameters.get("writeBack"));
                 if ("path".equalsIgnoreCase(strWriteBackType)) {
                     strOutPutPath = jsonWriteBack.getString("path");
-
                     strOutPutPath = strOutPutPath.replaceAll("\\\\", "/");
                     if (!strOutPutPath.endsWith("/")) {
                         strOutPutPath = strOutPutPath + "/";
                     }
                 }
             }
-
-
             if (fileInput.exists()) {
                 ConvertOfficeUtil convertOfficeUtil = new ConvertOfficeUtil();
                 String strPdfFile = strOutPutPath + strOutPutFileName + ".pdf";
                 File fileOut = null;
-
                 // 如果输入的文件格式为ofd，则单独处理
                 if ("ofd".equalsIgnoreCase(strInputFileExt)) {
                     if ("pdf".equalsIgnoreCase(strOutputType)) {
@@ -157,10 +175,8 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                 } else {
                     // 否则，认为是Office系列文件
                     fileOut = convertOfficeUtil.convertOffice2Pdf(strInputPath, strPdfFile);
-
                     if (fileOut.exists()) {
                         log.info("文件[" + strInputPathParam + "]转换PDF成功");
-
                         // 如果设置了需要加水印，则对转换后的pdf加水印
                         if (parameters.containsKey("waterMark")) {
                             String strPdfWaterMark = strOutPutPath + strOutPutFileName + "_wm.pdf";
@@ -168,13 +184,11 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                             JSONObject jsonWaterMark = JSONObject.fromObject(parameters.get("waterMark"));
                             // 水印类型：pic（图片）、text（文字）
                             String strWaterMarkType = jsonWaterMark.getString("waterMarkType");
-
                             boolean blnSuccess = false;
                             // 如果需要加入图片水印
                             if ("pic".equalsIgnoreCase(strWaterMarkType)) {
                                 // 获取水印图片
                                 String strWaterMarkFile = System.getProperty("user.dir") + "/watermark/" + jsonWaterMark.getString("waterMarkFile");
-
                                 Integer intDegree = jsonWaterMark.getInt("degree");
                                 String strAlpha = jsonWaterMark.getString("alpha");
                                 float floatAlpha = 0.5f;
@@ -191,27 +205,24 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                                             floatAlpha, intDegree,
                                             intLocateX, intLocateY,
                                             intWaterMarkWidth, intWaterMarkHeight);
-
                                     if (blnSuccess) {
                                         fileOut.delete();
                                         fileOut = new File(strPdfWaterMark);
                                         fileOut.renameTo(new File(strPdfFile));
                                     }
-
-                                }else{
+                                } else {
                                     File fileOfd = convertOfficeUtil.convertPdf2Ofd(strPdfFile, strOutPutPath + strOutPutFileName + ".ofd");
-
                                     if (fileOfd.exists()) {
                                         new File(strPdfFile).delete();
 
-                                        blnSuccess = WaterMarkUtil.waterMarkByIcon4Ofd(strWaterMarkFile, fileOfd.getCanonicalPath(), fileOfd.getCanonicalPath()+"_wm.ofd",
+                                        blnSuccess = WaterMarkUtil.waterMarkByIcon4Ofd(strWaterMarkFile, fileOfd.getCanonicalPath(), fileOfd.getCanonicalPath() + "_wm.ofd",
                                                 floatAlpha, intDegree,
                                                 intLocateX, intLocateY,
                                                 intWaterMarkWidth, intWaterMarkHeight);
 
-                                        File fileTemp = new File(fileOfd.getCanonicalPath()+"_wm.ofd");
+                                        File fileTemp = new File(fileOfd.getCanonicalPath() + "_wm.ofd");
 
-                                        if(blnSuccess){
+                                        if (blnSuccess) {
                                             fileOfd.delete();
                                             fileTemp.renameTo(fileOfd);
                                         }
@@ -245,28 +256,24 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                                             strWaterMarkText,
                                             floatAlpha, intDegree,
                                             strFontName, intFontSize, color);
-
                                     if (blnSuccess) {
                                         fileOut.delete();
                                         fileOut = new File(strPdfWaterMark);
                                         fileOut.renameTo(new File(strPdfFile));
                                     }
-
                                 } else {
                                     File fileOfd = convertOfficeUtil.convertPdf2Ofd(strPdfFile, strOutPutPath + strOutPutFileName + ".ofd");
-
                                     if (fileOfd.exists()) {
                                         new File(strPdfFile).delete();
 
                                         float floatFontSize = Float.parseFloat(jsonWaterMark.getString("fontSize"));
                                         double dblAlpha = floatAlpha;
 
-                                        blnSuccess = WaterMarkUtil.waterMarkByText4Ofd(fileOfd.getCanonicalPath(), fileOfd.getCanonicalPath()+"_wm.ofd",
+                                        blnSuccess = WaterMarkUtil.waterMarkByText4Ofd(fileOfd.getCanonicalPath(), fileOfd.getCanonicalPath() + "_wm.ofd",
                                                 strWaterMarkText, floatFontSize, dblAlpha, color, intDegree);
 
-                                        File fileTemp = new File(fileOfd.getCanonicalPath()+"_wm.ofd");
-
-                                        if(blnSuccess){
+                                        File fileTemp = new File(fileOfd.getCanonicalPath() + "_wm.ofd");
+                                        if (blnSuccess) {
                                             fileOfd.delete();
                                             fileTemp.renameTo(fileOfd);
                                         }
@@ -276,14 +283,10 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                                 }
 
                             }
-
-
-
                         } else {
                             // 如果不加水印，则直接将PDF转换为OFD
                             if ("ofd".equalsIgnoreCase(strOutputType)) {
                                 File fileOfd = convertOfficeUtil.convertPdf2Ofd(strPdfFile, strOutPutPath + strOutPutFileName + ".ofd");
-
                                 if (fileOfd.exists()) {
                                     new File(strPdfFile).delete();
                                     fileOut = fileOfd;
@@ -299,15 +302,12 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                     }
 
                 }
-
-
                 // 如果是通过url方式获取的源文件，在jpg转换完毕后，作为临时文件，已经无用了，可以删掉。
                 if ("url".equalsIgnoreCase(strInputType)) {
                     if (fileInput.exists()) {
                         fileInput.delete();
                     }
                 }
-
                 // 如果“回写类型”不是path，则都需要调用工具进行回写（path直接写入了，不用以下这些处理）
                 if (!"path".equalsIgnoreCase(strWriteBackType)) {
                     // 回写文件
@@ -315,12 +315,9 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                     if (parameters.get("writeBackHeaders") != null) {
                         mapWriteBackHeaders = (Map) parameters.get("writeBackHeaders");
                     }
-
                     if ("url".equalsIgnoreCase(strWriteBackType)) {
                         String strWriteBackURL = jsonWriteBack.getString("url");
-
                         jsonReturn = WriteBackUtil.writeBack2Api(fileOut.getCanonicalPath(), strWriteBackURL, mapWriteBackHeaders);
-
                     } else if ("ftp".equalsIgnoreCase(strWriteBackType)) {
                         // ftp回写
                         boolean blnPassive = jsonWriteBack.getBoolean("passive");
@@ -329,10 +326,8 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                         String strFtpUserName = jsonWriteBack.getString("username");
                         String strFtpPassWord = jsonWriteBack.getString("password");
                         String strFtpFilePath = jsonWriteBack.getString("filepath");
-
                         boolean blnFptSuccess = false;
                         FileInputStream in = new FileInputStream(fileOut);
-
                         Ftp ftp = null;
                         try {
                             if (blnPassive) {
@@ -346,9 +341,7 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                                 ftp = new Ftp(strFtpHost, intFtpPort,
                                         strFtpUserName, strFtpPassWord);
                             }
-
                             blnFptSuccess = ftp.upload(strFtpFilePath, fileOut.getName(), in);
-
                         } catch (Exception e) {
                             e.printStackTrace();
                         } finally {
@@ -356,7 +349,6 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                                 if (ftp != null) {
                                     ftp.close();
                                 }
-
                                 if (in != null) {
                                     in.close();
                                 }
@@ -364,7 +356,6 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                                 e.printStackTrace();
                             }
                         }
-
                         if (blnFptSuccess) {
                             jsonReturn.put("flag", "success");
                             jsonReturn.put("message", "Upload " + strOutputType.toUpperCase() + " file to FTP success.");
@@ -373,14 +364,12 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                             jsonReturn.put("message", "Upload " + strOutputType.toUpperCase() + " file to FTP error.");
                         }
                     }
-
                     String strFlag = jsonReturn.getString("flag");
                     if ("success".equalsIgnoreCase(strFlag)) {
                         if (fileOut.exists()) {
                             fileOut.delete();
                         }
                     }
-
                     // 回调对方系统提供的CallBack方法。
                     if (parameters.get("callBackURL") != null) {
                         String strCallBackURL = String.valueOf(parameters.get("callBackURL"));
@@ -389,11 +378,9 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                         if (parameters.get("callBackHeaders") != null) {
                             mapCallBackHeaders = (Map) parameters.get("callBackHeaders");
                         }
-
                         Map mapParams = new HashMap<>();
                         mapParams.put("file", strOutPutFileName);
                         mapParams.put("flag", strFlag);
-
                         jsonReturn = callBack(strCallBackURL, mapCallBackHeaders, mapParams);
                     }
                 } else {
@@ -405,39 +392,12 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                 jsonReturn.put("flag", "error");
                 jsonReturn.put("message", "Source file not found.");
             }
-
-
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         return jsonReturn;
 
-    }
-
-    /**
-     * 回调业务系统提供的接口
-     *
-     * @param strWriteBackURL     回调接口URL
-     * @param mapWriteBackHeaders 请求头参数
-     * @param mapParams           参数
-     * @return JSON格式的返回结果
-     */
-    private static JSONObject callBack(String strWriteBackURL, Map<String, String> mapWriteBackHeaders, Map<String, Object> mapParams) {
-        //发送get请求并接收响应数据
-        String strResponse = HttpUtil.createGet(strWriteBackURL).
-                addHeaders(mapWriteBackHeaders).form(mapParams)
-                .execute().body();
-
-        JSONObject jsonReturn = new JSONObject();
-        if (strResponse != null) {
-            jsonReturn.put("flag", "success");
-            jsonReturn.put("message", "Convert Office File Callback Success.\n" +
-                    "Message is :\n" +
-                    strResponse);
-        }
-
-        return jsonReturn;
     }
 
 }
