@@ -51,12 +51,19 @@ spring:
         # 启用状态
         enabled: false
 
-  messages:
-    encoding: UTF-8
-    basename: i18n/messages
+
+    # 模板引擎
   thymeleaf:
-    suffix: .html
-    prefix: classpath:/page/
+    mode: HTML
+    encoding: utf-8
+    # 禁用缓存
+    cache: false  #使用Thymeleaf模板引擎，关闭缓存
+    servlet:
+      content-type: text/html
+    # 资源信息
+  messages:
+      # 国际化资源文件路径
+    basename: static/i18n/messages
 
 castle:
   upload:

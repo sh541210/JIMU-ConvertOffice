@@ -20,8 +20,7 @@
         <itextpdf.version>5.5.13</itextpdf.version>
         <ofdrw-full.version>1.17.6</ofdrw-full.version>
         <commons-io.version>2.11.0</commons-io.version>
-
-
+        <openhtml.version>1.0.10</openhtml.version>
     </properties>
 
     <dependencies>
@@ -179,7 +178,22 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-thymeleaf</artifactId>
-<!--            <version>${springboot.version}</version>-->
+        </dependency>
+
+        <!---html转pdf-->
+        <dependency>
+            <!-- ALWAYS required, usually included transitively. -->
+            <groupId>com.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-core</artifactId>
+            <version>${openhtml.version}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <!-- Required for PDF output. -->
+            <groupId>com.openhtmltopdf</groupId>
+            <artifactId>openhtmltopdf-pdfbox</artifactId>
+            <version>${openhtml.version}</version>
         </dependency>
 
 
