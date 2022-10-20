@@ -1,6 +1,6 @@
-package com.thinkdifferent.convertpic.task;
+package com.thinkdifferent.convertopic.task;
 
-import com.thinkdifferent.convertpic.service.ConvertPicService;
+import com.thinkdifferent.convertopic.service.ConvertPicService;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

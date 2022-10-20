@@ -496,7 +496,7 @@ convert2base64s接口返回信息示例如下：
 
 # 代码结构说明
 
-本项目所有代码均在  com.thinkdifferent.convertpic 之下，包含如下内容：
+本项目所有代码均在  com.thinkdifferent.convertopic 之下，包含如下内容：
 
 - config
   - ConvertOfficeConfig：本服务自有配置读取。

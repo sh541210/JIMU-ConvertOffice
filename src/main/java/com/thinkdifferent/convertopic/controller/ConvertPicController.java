@@ -1,8 +1,8 @@
-package com.thinkdifferent.convertpic.controller;
+package com.thinkdifferent.convertopic.controller;
 
-import com.thinkdifferent.convertpic.config.ConvertPicConfig;
-import com.thinkdifferent.convertpic.service.ConvertPicService;
-import com.thinkdifferent.convertpic.service.RabbitPicMQService;
+import com.thinkdifferent.convertopic.config.ConvertPicConfig;
+import com.thinkdifferent.convertopic.service.ConvertPicService;
+import com.thinkdifferent.convertopic.service.RabbitPicMQService;
 import com.thinkdifferent.mq.config.RabbitMQConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

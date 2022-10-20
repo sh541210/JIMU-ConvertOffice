@@ -1,13 +1,13 @@
-package com.thinkdifferent.convertpic.service.impl;
+package com.thinkdifferent.convertopic.service.impl;
 
 import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.extra.ftp.Ftp;
 import cn.hutool.extra.ftp.FtpConfig;
 import cn.hutool.extra.ftp.FtpMode;
 import cn.hutool.http.HttpUtil;
-import com.thinkdifferent.convertpic.config.ConvertPicConfig;
-import com.thinkdifferent.convertpic.service.ConvertPicService;
-import com.thinkdifferent.convertpic.utils.*;
+import com.thinkdifferent.convertopic.config.ConvertPicConfig;
+import com.thinkdifferent.convertopic.service.ConvertPicService;
+import com.thinkdifferent.convertopic.utils.*;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

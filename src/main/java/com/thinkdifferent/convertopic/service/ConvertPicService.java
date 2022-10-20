@@ -1,4 +1,4 @@
-package com.thinkdifferent.convertpic.service;
+package com.thinkdifferent.convertopic.service;
 
 import net.sf.json.JSONObject;
 

@@ -1,4 +1,4 @@
-package com.thinkdifferent.convertpic.utils;
+package com.thinkdifferent.convertopic.utils;
 
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;

@@ -1,4 +1,4 @@
-package com.thinkdifferent.convertpic.utils;
+package com.thinkdifferent.convertopic.utils;
 
 import org.springframework.stereotype.Component;
 

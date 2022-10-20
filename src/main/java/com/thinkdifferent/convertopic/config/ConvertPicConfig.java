@@ -1,4 +1,4 @@
-package com.thinkdifferent.convertpic.config;
+package com.thinkdifferent.convertopic.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;

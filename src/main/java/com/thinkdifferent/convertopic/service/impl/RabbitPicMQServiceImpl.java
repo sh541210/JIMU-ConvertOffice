@@ -1,6 +1,6 @@
-package com.thinkdifferent.convertpic.service.impl;
+package com.thinkdifferent.convertopic.service.impl;
 
-import com.thinkdifferent.convertpic.service.RabbitPicMQService;
+import com.thinkdifferent.convertopic.service.RabbitPicMQService;
 import com.thinkdifferent.mq.config.RabbitMQConfig;
 import net.sf.json.JSONObject;
 import org.slf4j.Logger;

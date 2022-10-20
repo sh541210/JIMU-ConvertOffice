@@ -1,7 +1,7 @@
 package com.thinkdifferent.mq.consumer;
 
-import com.thinkdifferent.convertpic.service.ConvertPicService;
-import com.thinkdifferent.convertpic.task.PicTask;
+import com.thinkdifferent.convertopic.service.ConvertPicService;
+import com.thinkdifferent.convertopic.task.PicTask;
 import com.thinkdifferent.mq.config.RabbitMQConfig;
 import net.sf.json.JSONObject;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
