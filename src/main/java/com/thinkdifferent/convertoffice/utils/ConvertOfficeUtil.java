@@ -16,18 +16,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * 转换工具类
+ * office转换工具类
  */
 @Order
 @Component
 public class ConvertOfficeUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(ConvertOfficeUtil.class);
-
-    public static void main(String[] args) {
-        ConvertOfficeUtil convertOfficeUtil = new ConvertOfficeUtil();
-        convertOfficeUtil.convertOffice2Pdf("d:/cvtest/mysql知识点 (已自动恢复).docx", "d:/cvtest/1-pdf-1.pdf");
-    }
 
     /**
      * 将输入文件转换为pdf
@@ -38,17 +33,15 @@ public class ConvertOfficeUtil {
      */
     public File convertOffice2Pdf(String strInputFile, String strOutputFile) {
         File fileInput = new File(strInputFile);
-
         // 如果输出文件名不是pdf扩展名，加上
         if (!strOutputFile.endsWith(".pdf")) {
             strOutputFile = strOutputFile + ".pdf";
         }
         File fileOutput = new File(strOutputFile);
-
         // 如果输入的文件存在，则执行转换
         if (fileInput.exists()) {
             try {
-                getDocumentConverter().convert(fileInput).to(fileOutput).execute();
+                getDocumentConverter().convert(fileInput).to(fileOutput).execute();//依赖jodconverter和LibreOffice
             } catch (OfficeException e) {
                 e.printStackTrace();
             }
@@ -56,7 +49,6 @@ public class ConvertOfficeUtil {
             // 如果输入的文件不存在，则返回空对象
             return null;
         }
-
         return fileOutput;
     }
 

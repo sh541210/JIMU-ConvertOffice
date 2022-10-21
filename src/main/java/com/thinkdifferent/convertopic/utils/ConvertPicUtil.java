@@ -22,6 +22,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 图片转换工具类
+ */
 @Component
 public class ConvertPicUtil {
 

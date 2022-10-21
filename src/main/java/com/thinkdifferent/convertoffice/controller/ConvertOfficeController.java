@@ -1,9 +1,9 @@
 package com.thinkdifferent.convertoffice.controller;
 
 import com.thinkdifferent.convertoffice.config.ConvertOfficeConfig;
-import com.thinkdifferent.mq.config.RabbitMQConfig;
 import com.thinkdifferent.convertoffice.service.ConvertOfficeService;
 import com.thinkdifferent.convertoffice.service.RabbitOfficeMQService;
+import com.thinkdifferent.mq.config.RabbitMQConfig;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import net.sf.json.JSONObject;
@@ -67,16 +67,13 @@ public class ConvertOfficeController {
     @RequestMapping(value = "/convert", method = RequestMethod.POST)
     public Map<String, String> convert2Jpg(@RequestBody JSONObject jsonInput) {
         JSONObject jsonReturn = new JSONObject();
-
         if (!RabbitMQConfig.producer) {
             jsonReturn = convertOfficeService.ConvertOffice(jsonInput);
         } else {
             jsonReturn.put("flag", "success");
             jsonReturn.put("message", "Set Data to MQ Success");
-
             rabbitMQService.setData2MQ(jsonInput);
         }
-
         return jsonReturn;
     }
 

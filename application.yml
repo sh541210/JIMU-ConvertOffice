@@ -50,9 +50,7 @@ spring:
         server-addr: 127.0.0.1:8848
         # 启用状态
         enabled: false
-
-
-    # 模板引擎
+  # 模板引擎
   thymeleaf:
     mode: HTML
     encoding: utf-8

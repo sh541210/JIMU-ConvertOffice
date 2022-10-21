@@ -47,7 +47,6 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
         String strResponse = HttpUtil.createGet(strWriteBackURL).
                 addHeaders(mapWriteBackHeaders).form(mapParams)
                 .execute().body();
-
         JSONObject jsonReturn = new JSONObject();
         if (strResponse != null) {
             jsonReturn.put("flag", "success");
@@ -55,7 +54,6 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                     "Message is :\n" +
                     strResponse);
         }
-
         return jsonReturn;
     }
 
@@ -171,7 +169,6 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                     if ("pdf".equalsIgnoreCase(strOutputType)) {
                         fileOut = convertOfficeUtil.convertOfd2Pdf(strInputPath, strPdfFile);
                     }
-
                 } else {
                     // 否则，认为是Office系列文件
                     fileOut = convertOfficeUtil.convertOffice2Pdf(strInputPath, strPdfFile);
