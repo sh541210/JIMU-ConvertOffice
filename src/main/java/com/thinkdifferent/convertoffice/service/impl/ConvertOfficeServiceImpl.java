@@ -383,6 +383,7 @@ public class ConvertOfficeServiceImpl implements ConvertOfficeService {
                 } else {
                     jsonReturn.put("flag", "success");
                     jsonReturn.put("message", "Convert Office to " + strOutputType.toUpperCase() + " success.");
+                    jsonReturn.put("path","");
                 }
 
             } else {

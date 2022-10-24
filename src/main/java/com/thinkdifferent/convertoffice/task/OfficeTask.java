@@ -21,7 +21,7 @@ public class OfficeTask implements RabbitTemplate.ConfirmCallback {
      * 处理接收列表中的数据，异步多线程任务
      *
      * @param convertOfficeService 创建Office文件转换的Service对象
-     * @param jsonInput 队列中待处理的JSON数据
+     * @param jsonInput            队列中待处理的JSON数据
      * @throws Exception
      */
     @Async("taskExecutor")
@@ -35,12 +35,12 @@ public class OfficeTask implements RabbitTemplate.ConfirmCallback {
         Map<String, String> mapReturn = new HashMap<>();
 
 
-        try{
+        try {
             JSONObject jsonSuccess = convertOfficeService.ConvertOffice(jsonInput);
-            if("success".equalsIgnoreCase(jsonSuccess.getString("flag"))){
+            if ("success".equalsIgnoreCase(jsonSuccess.getString("flag"))) {
                 mapReturn.put("flag", "success");
                 mapReturn.put("message", "Office Convert to Pdf Success.");
-            }else{
+            } else {
                 mapReturn.put("flag", "error");
                 mapReturn.put("message", "Office Convert to Pdf Error.");
             }
@@ -49,7 +49,7 @@ public class OfficeTask implements RabbitTemplate.ConfirmCallback {
             log.info("转换JPdf异常");
             log.error(e.getMessage());
 
-            mapReturn.put("flag", "error" );
+            mapReturn.put("flag", "error");
             mapReturn.put("message", "Office Convert to Pdf Error.");
 
         }
@@ -60,13 +60,13 @@ public class OfficeTask implements RabbitTemplate.ConfirmCallback {
 
     /**
      * 回调反馈消费者消费信息
+     *
      * @param correlationData
      * @param b
      * @param msg
      */
     @Override
-    public void confirm(CorrelationData correlationData, boolean b, String msg)
-    {
+    public void confirm(CorrelationData correlationData, boolean b, String msg) {
         log.info(" 回调id:" + correlationData);
         if (b) {
             log.info("消息成功消费");

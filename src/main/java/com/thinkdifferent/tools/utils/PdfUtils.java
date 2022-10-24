@@ -2,6 +2,8 @@ package com.thinkdifferent.tools.utils;
 
 
 import com.itextpdf.io.source.ByteArrayOutputStream;
+import org.apache.pdfbox.io.RandomAccessRead;
+import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.rendering.PDFRenderer;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -193,27 +196,37 @@ public class PdfUtils {
         return pages;
     }
 
-//    /**
-//     * 将PDF文件转换成多张图片
-//     *
-//     * @param pdfFile PDF源文件
-//     * @return 图片字节数组列表
-//     */
-//    private static List<byte[]> pdf2images(File pdfFile) throws Exception {
-//        //加载PDF
-//        PDDocument pdDocument = PDDocument.load(pdfFile);
-//        //创建PDF渲染器
-//        PDFRenderer renderer = new PDFRenderer(pdDocument);
-//        int pages = pdDocument.getNumberOfPages();
-//        List<byte[]> images = new ArrayList<>();
-//        for (int i = 0; i < pages; i++) {
-//            ByteArrayOutputStream output = new ByteArrayOutputStream();
-//            //将PDF的每一页渲染成一张图片
-//            BufferedImage image = renderer.renderImage(i);
-//            ImageIO.write(image, "png", output);
-//            images.add(output.toByteArray());
-//        }
-//        pdDocument.close();
-//        return images;
-//    }
+    /**
+     * 将PDF文件转换成多张图片
+     *
+     * @param pdfFile PDF源文件
+     * @return 图片字节数组列表
+     */
+    private static List<byte[]> pdf2images(File pdfFile) throws Exception {
+        InputStream inputStream = new FileInputStream(pdfFile);
+        //老版本（例如：1.8.8）的不用进行强转，新版本（例如：2.0.8）的需要
+        //加载pdf文档
+        PDFParser parser = new PDFParser((RandomAccessRead) inputStream);
+        /**
+         * 缺少这句会报：
+         * Exception in thread "main" java.io.IOException:
+         * You must call paser() before calling getDocument
+         */
+        parser.parse();
+        PDDocument pdDocument = parser.parse();
+
+        //创建PDF渲染器
+        PDFRenderer renderer = new PDFRenderer(pdDocument);
+        int pages = pdDocument.getNumberOfPages();
+        List<byte[]> images = new ArrayList<>();
+        for (int i = 0; i < pages; i++) {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            //将PDF的每一页渲染成一张图片
+            BufferedImage image = renderer.renderImage(i);
+            ImageIO.write(image, "png", output);
+            images.add(output.toByteArray());
+        }
+        pdDocument.close();
+        return images;
+    }
 }
